@@ -10,11 +10,19 @@
     <header class="topbar">
       <div class="wrap">
         <strong class="brand">Commerce Training</strong>
-        <nav>
+        <nav class="top-navbar">
           <%= link_to "Sản phẩm", products_path, class: ("active" if controller_name == "products") %>
           <%= link_to "Đơn hàng", orders_path, class: ("active" if controller_name == "orders" && action_name != "new") %>
           <%= link_to "Tạo đơn", new_order_path, class: ("active" if controller_name == "orders" && action_name == "new") %>
         </nav>
+        <% if user_signed_in? %>
+          <div class="user-info">
+            <span><%= current_user.name.presence || current_user.email %></span>
+            <%= button_to "Log out", logout_path, method: :delete, class: "btn btn-sm btn-danger", data: { turbo: false } %>
+          </div>
+        <% else %>
+          <%= button_to "Sign in", "/auth/openid_connect", method: :post, class: "btn btn-sm btn-primary", data: { turbo: false } %>
+        <% end %>
       </div>
     </header>
     <main class="wrap">

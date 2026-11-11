@@ -29,7 +29,36 @@ code { font:13px ui-monospace,monospace; background:var(--bg); padding:1px 6px; 
 .badge-low,.badge-payment_pending,.badge-pending { background:#fdf0c9; color:#7a5a00; }
 .badge-out,.badge-payment_failed,.badge-cancelled { background:#fbdada; color:#8a1c1c; }
 @media (max-width:600px) { .card { grid-template-columns:1fr; } th,td { padding:8px; } }
-.flash { padding:10px 14px; border-radius:8px; margin-bottom:16px; border:1px solid var(--line); background:var(--card); }
+.flash { padding:10px 14px; border-radius:8px; margin-bottom:16px; border:1px solid var(--line); background:var(--card); font-size: 0.825rem; }
 .flash-notice { border-color:#14642e; } .flash-alert { border-color:#8a1c1c; }
 .btn { background:var(--accent); color:#fff; border:0; border-radius:6px; padding:8px 16px; font:inherit; cursor:pointer; }
 .qty { width:80px; } input[type=text], input[type=number] { padding:6px 8px; border:1px solid var(--line); border-radius:6px; background:var(--card); color:var(--text); font:inherit; }
+
+.top-navbar {
+  flex: 1;
+}
+
+.btn-sm {
+  padding: 0.4rem 0.6rem !important;
+  font-size: 0.825rem;
+}
+
+.user-info {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: .5rem;
+}
+
+.user-info span {
+  font-weight: 600;
+  font-size: 0.825rem;
+}
+
+.btn-primary {
+  background-color: var(--accent);
+}
+
+.btn-danger {
+  background-color: #8a1c1c;
+}
