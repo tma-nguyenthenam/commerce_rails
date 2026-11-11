@@ -1,4 +1,15 @@
 services:
+  web:
+    build: .
+    command: ./bin/rails server -b 0.0.0.0
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgres://commerce:password@db:5432/commerce
+    depends_on:
+      - db
+    volumes:
+      - .:/rails
   db:
     image: postgres:16
     container_name: commerce_api_db
@@ -6,7 +17,7 @@ services:
       POSTGRES_USER: commerce
       POSTGRES_PASSWORD: password
     ports:
-      - "5433:5432"   # 5433 để không trùng PostgreSQL cài sẵn trên máy (5432)
+      - "5433:5432" # 5433 để không trùng PostgreSQL cài sẵn trên máy (5432)
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
