@@ -1,0 +1,28 @@
+<h1>Tạo đơn hàng</h1>
+<p class="muted">Gọi <code>Orders::Create</code>. Thử: mua quá số tồn kho, bấm đúp nút, dùng mã <code>SALE50</code>.</p>
+
+<%= form_with url: orders_path, method: :post do %>
+  <%# Cùng key này đi theo mọi lần submit của form -> chống tạo đơn trùng %>
+  <%= hidden_field_tag :idempotency_key, @idempotency_key %>
+
+  <table>
+    <thead><tr><th>Sản phẩm</th><th class="num">Giá</th><th>Tồn kho</th><th>Số lượng</th></tr></thead>
+    <tbody>
+      <% @products.each do |product| %>
+        <tr>
+          <td><%= product.title %></td>
+          <td class="num"><%= vnd product.price %></td>
+          <td><%= stock_badge product.stock %></td>
+          <td><%= number_field_tag "items[#{product.id}]", params.dig(:items, product.id.to_s), min: 0, class: "qty" %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <p>
+    <label>Mã giảm giá
+      <%= text_field_tag :discount_code, params[:discount_code], placeholder: "SALE50" %>
+    </label>
+  </p>
+  <p><%= submit_tag "Đặt hàng", class: "btn" %></p>
+<% end %>

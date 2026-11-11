@@ -1,0 +1,14 @@
+# ⚠️ CHƯA CHẠY. File này có đuôi .pending nên Rails bỏ qua.
+#
+# Đây là RELEASE 5 (CONTRACT) của bước 8. Chỉ được chạy khi:
+#   1. Không còn code nào đọc hoặc ghi cột `name` (kể cả worker/job/console cũ).
+#   2. Mọi instance đang chạy đã là phiên bản mới (đã bỏ `name` khỏi code).
+#   3. `Product.where(title: nil).count == 0` (backfill xong, đã verify).
+#
+# Để chạy: bỏ đuôi .pending, chuyển vào db/migrate/, và xóa các dòng
+# `self.ignored_columns` + phần đồng bộ `name` trong Product.
+class RemoveNameFromProducts < ActiveRecord::Migration[8.0]
+  def change
+    remove_column :products, :name, :string, null: false
+  end
+end

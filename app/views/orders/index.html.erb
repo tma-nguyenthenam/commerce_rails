@@ -1,0 +1,21 @@
+<h1>Đơn hàng</h1>
+<p class="muted"><%= @orders.size %> đơn</p>
+
+<% if @orders.empty? %>
+  <p class="empty">Chưa có đơn hàng.</p>
+<% else %>
+  <table>
+    <thead><tr><th>#</th><th>Khách</th><th>Trạng thái</th><th>Idempotency key</th><th class="num">Tổng</th></tr></thead>
+    <tbody>
+      <% @orders.each do |order| %>
+        <tr>
+          <td><%= link_to order.id, order %></td>
+          <td><%= order.user.name %></td>
+          <td><%= status_badge order.status %></td>
+          <td><code><%= order.idempotency_key %></code></td>
+          <td class="num"><%= vnd order.total %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>

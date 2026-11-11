@@ -1,0 +1,8 @@
+<p><%= link_to "← Sản phẩm", products_path %></p>
+<h1><%= @product.title %></h1>
+<dl class="card">
+  <dt>Giá</dt><dd><%= vnd @product.price %></dd>
+  <dt>Tồn kho</dt><dd><%= stock_badge @product.stock %></dd>
+  <dt>lock_version</dt><dd><%= @product.lock_version %></dd>
+  <dt>Cập nhật</dt><dd><%= l @product.updated_at, format: :short %></dd>
+</dl>

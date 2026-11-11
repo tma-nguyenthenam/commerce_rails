@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <title>Commerce API — Training</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= stylesheet_link_tag "application" %>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="wrap">
+        <strong class="brand">Commerce Training</strong>
+        <nav>
+          <%= link_to "Sản phẩm", products_path, class: ("active" if controller_name == "products") %>
+          <%= link_to "Đơn hàng", orders_path, class: ("active" if controller_name == "orders" && action_name != "new") %>
+          <%= link_to "Tạo đơn", new_order_path, class: ("active" if controller_name == "orders" && action_name == "new") %>
+        </nav>
+      </div>
+    </header>
+    <main class="wrap">
+      <% flash.each do |type, message| %>
+        <div class="flash flash-<%= type %>"><%= message %></div>
+      <% end %>
+      <%= yield %>
+    </main>
+  </body>
+</html>

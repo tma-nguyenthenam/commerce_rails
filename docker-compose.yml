@@ -1,0 +1,18 @@
+services:
+  db:
+    image: postgres:16
+    container_name: commerce_api_db
+    environment:
+      POSTGRES_USER: commerce
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5433:5432"   # 5433 để không trùng PostgreSQL cài sẵn trên máy (5432)
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U commerce"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+volumes:
+  pgdata:

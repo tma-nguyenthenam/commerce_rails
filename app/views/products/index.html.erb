@@ -1,0 +1,20 @@
+<h1>Sản phẩm</h1>
+<p class="muted"><%= @products.size %> sản phẩm · dữ liệu đi qua cache (<%= Rails.cache.class.name.demodulize %>)</p>
+
+<% if @products.empty? %>
+  <p class="empty">Chưa có sản phẩm. Chạy <code>bin/rails db:seed</code>.</p>
+<% else %>
+  <table>
+    <thead><tr><th>#</th><th>Tên</th><th class="num">Giá</th><th>Tồn kho</th></tr></thead>
+    <tbody>
+      <% @products.each do |product| %>
+        <tr>
+          <td><%= product[:id] %></td>
+          <td><%= link_to product[:title], product_path(product[:id]) %></td>
+          <td class="num"><%= vnd product[:price] %></td>
+          <td><%= stock_badge product[:stock] %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>

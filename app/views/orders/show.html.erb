@@ -1,0 +1,41 @@
+<p><%= link_to "← Đơn hàng", orders_path %></p>
+<h1>Đơn #<%= @order.id %> <%= status_badge @order.status %></h1>
+
+<dl class="card">
+  <dt>Khách</dt><dd><%= @order.user.name %> (<%= @order.user.email %>)</dd>
+  <dt>Idempotency key</dt><dd><code><%= @order.idempotency_key %></code></dd>
+  <dt>Đã gửi xác nhận</dt><dd><%= @order.confirmation_sent_at ? l(@order.confirmation_sent_at, format: :short) : "Chưa" %></dd>
+</dl>
+
+<h2>Dòng hàng</h2>
+<table>
+  <thead><tr><th>Sản phẩm</th><th class="num">SL</th><th class="num">Đơn giá</th><th class="num">Thành tiền</th></tr></thead>
+  <tbody>
+    <% @order.items.each do |item| %>
+      <tr>
+        <td><%= link_to item.product.title, item.product %></td>
+        <td class="num"><%= item.quantity %></td>
+        <td class="num"><%= vnd item.unit_price %></td>
+        <td class="num"><%= vnd item.unit_price * item.quantity %></td>
+      </tr>
+    <% end %>
+  </tbody>
+  <tfoot><tr><td colspan="3">Tổng</td><td class="num"><%= vnd @order.total %></td></tr></tfoot>
+</table>
+
+<h2>Thanh toán</h2>
+<% unless %w[paid payment_pending cancelled].include?(@order.status) || !@order.total.positive? %>
+  <%= button_to "Thanh toán (gateway giả: chậm 1s, lỗi 20%)", pay_order_path(@order), method: :post, class: "btn" %>
+<% end %>
+<% if @order.payments.empty? %>
+  <p class="empty">Chưa có thanh toán.</p>
+<% else %>
+  <table>
+    <thead><tr><th>#</th><th>Trạng thái</th><th>External ID</th><th class="num">Số tiền</th></tr></thead>
+    <tbody>
+      <% @order.payments.each do |p| %>
+        <tr><td><%= p.id %></td><td><%= status_badge p.status %></td><td><code><%= p.external_id || "—" %></code></td><td class="num"><%= vnd p.amount %></td></tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>

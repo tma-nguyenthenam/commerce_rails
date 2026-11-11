@@ -1,0 +1,7 @@
+Xin chào <%= @order.user.name %>,
+
+Đơn hàng #<%= @order.id %> của bạn đã được ghi nhận. Tổng tiền: <%= number_with_delimiter(@order.total.to_i, delimiter: ".") %> đ.
+
+<% @order.items.includes(:product).each do |item| %>
+- <%= item.product.title || item.product.name %> x <%= item.quantity %>
+<% end %>
