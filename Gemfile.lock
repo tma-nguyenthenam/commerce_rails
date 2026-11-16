@@ -1,3 +1,9 @@
+PATH
+  remote: training_pricing_2
+  specs:
+    training_pricing_2 (0.1.0)
+      bigdecimal
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -386,7 +392,8 @@ DEPENDENCIES
   rails (~> 8.0.5, >= 8.0.5.1)
   rspec-rails
   rubocop-rails-omakase
+  training_pricing_2!
   tzinfo-data
 
 BUNDLED WITH
-   2.7.2
+   2.6.9

@@ -102,26 +102,97 @@ module Orders
       merged.sort.map { |product_id, quantity| { product_id: product_id, quantity: quantity } }
     end
 
-    def build_order!(user:, lines:, idempotency_key:, discount_code:)
-      products = Product.where(id: lines.map { |l| l[:product_id] }).index_by(&:id)
-      raise InvalidProduct if products.size != lines.size
 
-      # Tạo order TRƯỚC. Nếu hai request cùng key chạy song song, bên thứ hai sẽ bị
-      # chặn ở unique index ngay tại đây, trước cả khi trừ kho.
-      order = Order.create!(user: user, idempotency_key: idempotency_key, status: "pending", total: 0)
+    def build_order!(user:, lines:, idempotency_key:, discount_code:)
+      product_ids = lines.map { |line| line[:product_id] }
+
+      products = Product.where(id: product_ids).index_by(&:id)
+      raise InvalidProduct if products.size != product_ids.uniq.size
+
+      # Create order first to enforce idempotency through unique index.
+      order = Order.create!(
+        user: user,
+        idempotency_key: idempotency_key,
+        status: "pending",
+        total: 0
+      )
 
       priced_lines = lines.map do |line|
         product = products.fetch(line[:product_id])
+
         reserve_stock!(product, line[:quantity])
-        order.items.create!(product: product, quantity: line[:quantity], unit_price: product.price.to_d)
-        { unit_price: product.price.to_d, quantity: line[:quantity] }
+
+        order.items.create!(
+          product: product,
+          quantity: line[:quantity],
+          unit_price: product.price.to_d
+        )
+
+        {
+          unit_price: product.price.to_d,
+          quantity: line[:quantity]
+        }
       end
 
-      discount = discount_code.present? ? DiscountCode.redeem!(discount_code).amount : BigDecimal("0")
-      breakdown = Pricing::Calculator.call(lines: priced_lines, shipping: @shipping, discount: discount)
-      order.update!(total: breakdown.total)
+      # Redeem discount code in Rails.
+      discount_amount =
+        if discount_code.present?
+          DiscountCode.redeem!(discount_code).amount
+        else
+          BigDecimal("0")
+        end
+
+      discounts = if discount_amount.positive?
+                    [
+                      {
+                        name: discount_code,
+                        type: :fixed,
+                        value: discount_amount
+                      }
+                    ]
+                  else
+                    []
+                  end
+
+      # Calculate pricing using the custom gem.
+      pricing_result = ::TrainingPricing2::Calculator.call(
+        {
+          lines: priced_lines,
+          discounts: discounts
+        }
+      )
+
+      # Shipping is handled separately because the gem doesn't support it yet.
+      shipping = BigDecimal(@shipping.call(pricing_result.subtotal).to_s)
+
+      total = (pricing_result.total + shipping).round(::TrainingPricing2.configuration.precision, ::TrainingPricing2.configuration.rounding_mode)
+
+      order.update!(total: total)
+
       order
     end
+
+
+    # def build_order!(user:, lines:, idempotency_key:, discount_code:)
+    #   products = Product.where(id: lines.map { |l| l[:product_id] }).index_by(&:id)
+    #   raise InvalidProduct if products.size != lines.size
+
+    #   # Tạo order TRƯỚC. Nếu hai request cùng key chạy song song, bên thứ hai sẽ bị
+    #   # chặn ở unique index ngay tại đây, trước cả khi trừ kho.
+    #   order = Order.create!(user: user, idempotency_key: idempotency_key, status: "pending", total: 0)
+
+    #   priced_lines = lines.map do |line|
+    #     product = products.fetch(line[:product_id])
+    #     reserve_stock!(product, line[:quantity])
+    #     order.items.create!(product: product, quantity: line[:quantity], unit_price: product.price.to_d)
+    #     { unit_price: product.price.to_d, quantity: line[:quantity] }
+    #   end
+
+    #   discount = discount_code.present? ? DiscountCode.redeem!(discount_code).amount : BigDecimal("0")
+    #   breakdown = Pricing::Calculator.call(lines: priced_lines, shipping: @shipping, discount: discount)
+    #   order.update!(total: breakdown.total)
+    #   order
+    # end
 
     # ── Chống oversell (Q4) ───────────────────────────────────────────────────
     # KHÔNG làm kiểu "đọc rồi ghi":
