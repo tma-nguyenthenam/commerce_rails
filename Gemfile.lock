@@ -4,6 +4,11 @@ PATH
     training_pricing_2 (0.1.0)
       bigdecimal
 
+PATH
+  remote: vendor/gems/order_pricing
+  specs:
+    order_pricing (0.1.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -386,6 +391,7 @@ DEPENDENCIES
   omniauth
   omniauth-rails_csrf_protection
   omniauth_openid_connect
+  order_pricing!
   pg (~> 1.1)
   propshaft
   puma (>= 5.0)

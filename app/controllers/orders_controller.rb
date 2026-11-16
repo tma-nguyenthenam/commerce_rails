@@ -71,9 +71,6 @@ class OrdersController < ApplicationController
 
   private
 
-  # Không có đăng nhập trong bài học: coi người dùng đầu tiên là "người đang mua".
-  def current_user = User.order(:id).first!
-
   # Form gửi items[<product_id>] = số lượng. Bỏ qua các ô để trống hoặc 0.
   def items_from_params
     raw = params.fetch(:items, {}).to_unsafe_h
