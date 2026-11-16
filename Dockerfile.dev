@@ -1,0 +1,43 @@
+# syntax=docker/dockerfile:1
+
+ARG RUBY_VERSION=3.4.5
+FROM docker.io/library/ruby:$RUBY_VERSION-slim
+
+WORKDIR /rails
+
+# Runtime + build packages (build tools stay so gems with native extensions can compile)
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y \
+      build-essential git curl pkg-config libyaml-dev \
+      libjemalloc2 libvips sqlite3 && \
+    ln -s /usr/lib/$(uname -m)-linux-gnu/libjemalloc.so.2 /usr/local/lib/libjemalloc.so && \
+    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+ENV RAILS_ENV="development" \
+    BUNDLE_PATH="/usr/local/bundle" \
+    BUNDLE_APP_CONFIG="/usr/local/bundle" \
+    BINDING="0.0.0.0" \
+    LD_PRELOAD="/usr/local/lib/libjemalloc.so"
+
+# Non-root user whose UID/GID can match your host user (avoids root-owned files in your repo)
+ARG UID=1000
+ARG GID=1000
+RUN groupadd --gid $GID rails && \
+    useradd rails --uid $UID --gid $GID --create-home --shell /bin/bash && \
+    mkdir -p "$BUNDLE_PATH" && chown -R rails:rails "$BUNDLE_PATH" /rails
+
+USER rails
+
+# Install gems first for layer caching (all groups, including development and test)
+COPY --chown=rails:rails Gemfile Gemfile.lock ./
+COPY --chown=rails:rails vendor* ./vendor/
+
+# App code (in compose this gets overlaid by a bind mount)
+COPY --chown=rails:rails . .
+
+RUN bundle install
+
+ENTRYPOINT ["/rails/bin/docker-entrypoint"]
+
+EXPOSE 3000
+CMD ["./bin/rails", "server"]

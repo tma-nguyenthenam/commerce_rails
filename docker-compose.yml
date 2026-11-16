@@ -1,6 +1,8 @@
 services:
   web:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     command: ./bin/rails server -b 0.0.0.0
     ports:
       - "3000:3000"
@@ -16,6 +18,7 @@ services:
       - db
     volumes:
       - .:/rails
+      - bundle:/usr/local/bundle
   db:
     image: postgres:16
     container_name: commerce_api_db
@@ -33,3 +36,4 @@ services:
       retries: 10
 volumes:
   pgdata:
+  bundle:
