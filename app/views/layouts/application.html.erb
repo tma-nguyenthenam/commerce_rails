@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= stylesheet_link_tag "application" %>
+    <%= javascript_importmap_tags %>
   </head>
   <body>
     <header class="topbar">
       <div class="wrap">
-        <strong class="brand">Commerce Training</strong>
+        <strong class="brand"><%= link_to "Commerce Training", products_path %></strong>
         <nav class="top-navbar">
           <%= link_to "Sản phẩm", products_path, class: ("active" if controller_name == "products") %>
           <%= link_to "Đơn hàng", orders_path, class: ("active" if controller_name == "orders" && action_name != "new") %>

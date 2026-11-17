@@ -6,8 +6,9 @@ Rails.application.routes.draw do
   get "/auth/:provider/callback", to: "sessions#create"
   delete "/logout", to: "sessions#destroy", as: :logout
 
-  root "products#index"
-  resources :products, only: %i[index show]
+  root "store#index"
+  resources :products
+  resources :categories, only: [:create]
 
   resources :orders, only: %i[index show new create] do
     post :pay, on: :member # POST /orders/:id/pay -> Orders::Pay (bước 4)
@@ -20,4 +21,7 @@ Rails.application.routes.draw do
   get "benchmark/io", to: "benchmarks#io"
   get "benchmark/cpu", to: "benchmarks#cpu"
   get "benchmark/db", to: "benchmarks#db"
+
+  get "/:category_id", to: "categories#index", as: :category_products,
+  constraints: { category_id: /[a-z0-9\-]+/ }
 end

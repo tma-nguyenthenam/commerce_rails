@@ -10,9 +10,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_11_11_085609) do
+ActiveRecord::Schema[8.0].define(version: 2026_11_17_042446) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "categories", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description"
+    t.string "slug"
+    t.string "image_url"
+    t.string "promo_banner"
+    t.string "background_card"
+    t.string "tagline"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_categories_on_name", unique: true
+    t.index ["slug"], name: "index_categories_on_slug", unique: true
+  end
 
   create_table "discount_codes", force: :cascade do |t|
     t.string "code", null: false
@@ -75,6 +89,20 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_11_085609) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "title"
+    t.bigint "category_id"
+    t.text "description"
+    t.string "colors", default: [], array: true
+    t.jsonb "options", default: {}
+    t.string "thumbnail"
+    t.string "images", default: [], array: true
+    t.string "slug"
+    t.boolean "is_new"
+    t.string "tagline"
+    t.index ["category_id"], name: "index_products_on_category_id"
+    t.index ["colors"], name: "index_products_on_colors", using: :gin
+    t.index ["images"], name: "index_products_on_images", using: :gin
+    t.index ["options"], name: "index_products_on_options", using: :gin
+    t.index ["slug"], name: "index_products_on_slug", unique: true
     t.check_constraint "price >= 0::numeric", name: "products_price_non_negative"
     t.check_constraint "stock >= 0", name: "products_stock_non_negative"
   end
@@ -93,4 +121,5 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_11_085609) do
   add_foreign_key "order_items", "products"
   add_foreign_key "orders", "users"
   add_foreign_key "payments", "orders"
+  add_foreign_key "products", "categories"
 end

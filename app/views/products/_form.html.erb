@@ -1,0 +1,73 @@
+<%= hidden_field_tag 'categories_path', categories_path %>
+
+<%= form_with(model: @product, local: true, class: "form") do |f| %>
+  <% if @product.errors.any? %>
+    <div class="errors">
+      <h2><%= pluralize(@product.errors.count, "error") %> prohibited this product:</h2>
+      <ul>
+        <% @product.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :name %>
+    <%= f.text_field :name, required: true %>
+  </div>
+
+  <div class="field">
+    <%= f.label :description %>
+    <%= f.text_area :description, rows: 3 %>
+  </div>
+
+  <div class="field">
+    <%= f.label :price %>
+    <%= f.number_field :price, step: "0.01", min: 0, required: true %>
+  </div>
+
+  <div class="field">
+    <%= f.label :stock %>
+    <%= f.number_field :stock, min: 0, required: true %>
+  </div>
+
+  <div class="field category-field">
+    <%= f.label :category_id, "Category" %>
+    <div class="category-row">
+    <%= f.collection_select :category_id, @categories || [], :id, :name,
+    { prompt: "Select a category" },
+    { id: "product_category_id", required: true } %>
+      <button type="button" id="open-category-dialog" class="btn btn-secondary">
+        + New Category
+      </button>
+    </div>
+  </div>
+
+  <div class="actions">
+    <%= f.submit "Save Product", class: "btn btn-primary" %>
+  </div>
+<% end %>
+
+<dialog id="category-dialog">
+  <form id="category-form">
+    <h3>New Category</h3>
+
+    <div class="field">
+      <label for="category_name">Name</label>
+      <input type="text" id="category_name" name="category[name]" required>
+    </div>
+
+    <div class="field">
+      <label for="category_description">Description</label>
+      <textarea id="category_description" name="category[description]" rows="3"></textarea>
+    </div>
+
+    <div id="category-errors" class="errors" style="display:none;"></div>
+
+    <div class="dialog-actions">
+      <button type="submit" class="btn btn-primary">Save Category</button>
+      <button type="button" id="cancel-category-dialog" class="btn">Cancel</button>
+    </div>
+  </form>
+</dialog>

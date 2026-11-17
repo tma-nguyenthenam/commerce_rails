@@ -1,0 +1,66 @@
+<section class="hero-section">
+  <div class="store-title">
+    <h1>Store</h1>
+  </div>
+
+  <div class="logo">🍎</div>
+
+  <div class="holiday">
+    <h2>Find gifts they'll love<br>this holiday.</h2>
+    <p>Connect with Specialist</p>
+    <p>Find an store</p>
+  </div>
+</section>
+<div class="store-head">
+  <div>
+    <h2>Store. The best way to buy the products you love.</h2>
+    <p>Drag, scroll or use the arrows to explore.</p>
+  </div>
+  <div class="nav-btns">
+    <button class="nav-btn" id="prevBtn" aria-label="Previous">&#8592;</button>
+    <button class="nav-btn" id="nextBtn" aria-label="Next">&#8594;</button>
+  </div>
+</div>
+<% if @products.empty? %>
+  <p class="empty">Chưa có sản phẩm</p>
+<% else %>
+  <div class="slider-wrap">
+    <div class="slider" id="slider">
+      <% @products.each do |product| %>
+        <article class="card">
+          <div class="emoji"></div>
+          <h2><%= product[:title] %></h2>
+          <p class="tagline"><%= product[:description] %></p>
+          <p class="price"><%= vnd product[:price] %></p>
+          <%= link_to "Buy", product_path(product[:id]), class: "buy" %>
+        </article>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
+<script>
+  // Scroll one card at a time
+  const step = () => {
+    const card = slider.querySelector(".card");
+    return card ? card.offsetWidth + 18 : 280;
+  };
+
+  document.getElementById("nextBtn").addEventListener("click", () => {
+    slider.scrollBy({ left: step(), behavior: "smooth" });
+  });
+  document.getElementById("prevBtn").addEventListener("click", () => {
+    slider.scrollBy({ left: -step(), behavior: "smooth" });
+  });
+
+  // Disable arrows at the edges
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  function updateArrows() {
+    prevBtn.disabled = slider.scrollLeft <= 2;
+    nextBtn.disabled = slider.scrollLeft + slider.clientWidth >= slider.scrollWidth - 2;
+  }
+  slider.addEventListener("scroll", updateArrows);
+  window.addEventListener("resize", updateArrows);
+  updateArrows();
+</script>

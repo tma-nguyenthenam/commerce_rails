@@ -20,3 +20,16 @@ end
 
 # Mã giảm giá để thử: giảm 50.000đ, dùng tối đa 3 lần
 DiscountCode.find_or_create_by!(code: "SALE50") { |d| d.amount = 50_000; d.max_uses = 3 }
+
+categories = [
+  { name: "iPhone",  description: "iPhone" },
+  { name: "iPad",    description: "iPad" },
+  { name: "MacBook", description: "MacBook" },
+  { name: "Watch",   description: "Watch" },
+]
+
+categories.each do |attrs|
+  Category.find_or_create_by!(name: attrs[:name]) do |c|
+    c.description = attrs[:description]
+  end
+end

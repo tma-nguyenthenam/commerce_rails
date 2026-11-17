@@ -55,3 +55,7 @@ gem "json", "~> 2.15" # json 3.x không tương thích ActiveSupport 8.0 (lỗi 
 # Local gem for order_pricing
 gem "order_pricing", path: "./vendor/gems/order_pricing"
 gem "training_admin_engine", path: "training_admin_engine"
+
+gem "importmap-rails", "~> 2.2"
+
+gem "turbo-rails", "~> 2.0"

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <title>Store</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= stylesheet_link_tag "application" %>
+    <%= javascript_importmap_tags %>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="wrap">
+        <strong class="brand"><%= link_to "Store", root_path %></strong>
+
+        <% if @categories.present? %>
+         <nav class="top-navbar">
+          <% @categories.each do |category| %>
+            <%= link_to category.name, category_products_path(category) %>
+          <% end %>
+          </nav>
+        <% else %>
+          <nav class="top-navbar">
+            <span>Not have category yet</span>
+          </nav>
+        <% end %>
+      
+        <% if user_signed_in? %>
+          <div class="user-info">
+            <span><%= current_user.name.presence || current_user.email %></span>
+            <%= button_to "Log out", logout_path, method: :delete, class: "btn btn-sm btn-danger", data: { turbo: false } %>
+          </div>
+        <% else %>
+          <%= button_to "Sign in", "/auth/openid_connect", method: :post, class: "btn btn-sm btn-primary", data: { turbo: false } %>
+        <% end %>
+      </div>
+    </header>
+    <main class="store">
+      <% flash.each do |type, message| %>
+        <div class="flash flash-<%= type %>"><%= message %></div>
+      <% end %>
+      <%= yield %>
+    </main>
+  </body>
+</html>
