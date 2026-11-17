@@ -21,6 +21,7 @@ gem "tzinfo-data", platforms: %i[ windows jruby ]
 gem "bootsnap", require: false
 
 gem "training_pricing_2", path: "./training_pricing_2"
+gem "training_admin_engine", path: "./training_admin_engine"
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 # gem "image_processing", "~> 1.2"
@@ -53,3 +54,4 @@ gem "json", "~> 2.15" # json 3.x không tương thích ActiveSupport 8.0 (lỗi 
 
 # Local gem for order_pricing
 gem "order_pricing", path: "./vendor/gems/order_pricing"
+gem "training_admin_engine", path: "training_admin_engine"

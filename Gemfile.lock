@@ -1,4 +1,10 @@
 PATH
+  remote: training_admin_engine
+  specs:
+    training_admin_engine (0.1.0)
+      rails (>= 8.0.5.2)
+
+PATH
   remote: training_pricing_2
   specs:
     training_pricing_2 (0.1.0)
@@ -398,6 +404,7 @@ DEPENDENCIES
   rails (~> 8.0.5, >= 8.0.5.1)
   rspec-rails
   rubocop-rails-omakase
+  training_admin_engine!
   training_pricing_2!
   tzinfo-data
 
