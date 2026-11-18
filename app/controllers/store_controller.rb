@@ -3,11 +3,15 @@ class StoreController < ApplicationController
   before_action :load_categories, only: %i[index show]
 
   def index
-    @products = Catalog::ProductsList.call
+    @products = Product.order(:created_at)
   end
 
   def show
-    
+    @product = if params[:product_id].to_s.match?(/\A\d+\z/)
+      Product.find(params[:product_id])
+    else
+      Product.find_by!(slug: params[:product_id])
+    end
   end
 
   private

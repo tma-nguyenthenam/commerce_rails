@@ -17,22 +17,30 @@
     <p>Drag, scroll or use the arrows to explore.</p>
   </div>
   <div class="nav-btns">
-    <button class="nav-btn" id="prevBtn" aria-label="Previous">&#8592;</button>
-    <button class="nav-btn" id="nextBtn" aria-label="Next">&#8594;</button>
+    <button class="nav-btn" id="prevBtn" aria-label="Previous">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><title>chevron-left</title><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m14 8l-4 4l4 4"/></svg>
+    </button>
+    <button class="nav-btn" id="nextBtn" aria-label="Next">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><title>chevron-right</title><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m10 16l4-4l-4-4"/></svg>
+    </button>
   </div>
 </div>
 <% if @products.empty? %>
-  <p class="empty">Chưa có sản phẩm</p>
+  <p class="empty-product">Not have product yet</p>
 <% else %>
   <div class="slider-wrap" data-component="slider">
     <div class="slider">
       <% @products.each do |product| %>
         <article class="card">
-          <div class="emoji"></div>
-          <h2><%= product[:title] %></h2>
-          <p class="tagline"><%= product[:description] %></p>
-          <p class="price"><%= vnd product[:price] %></p>
-          <%= link_to "Buy", product_path(product[:id]), class: "buy" %>
+          <div class="thumbnail"><%= image_tag(product_image_url(product[:thumbnail]), alt: product[:name], size: '230x230') %></div>
+          <div class="product-title"><%= link_to product[:title], show_products_path(product[:slug].presence || product[:id]), class: "product-title" %></div>
+          <p class="tagline"><%= product[:tagline] %></p>
+          <div class="card-footer">
+            <span class="price"><%= vnd product[:price] %></span>
+            <%= link_to show_products_path(product[:slug].presence || product[:id]), class: "buy" do %>
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><title>Buy</title><path fill="currentColor" d="M12.6 12L8.7 8.1q-.275-.275-.275-.7t.275-.7t.7-.275t.7.275l4.6 4.6q.15.15.213.325t.062.375t-.062.375t-.213.325l-4.6 4.6q-.275.275-.7.275t-.7-.275t-.275-.7t.275-.7z"/></svg>
+            <% end %>
+          </div>
         </article>
       <% end %>
     </div>

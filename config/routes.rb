@@ -22,6 +22,10 @@ Rails.application.routes.draw do
   get "benchmark/cpu", to: "benchmarks#cpu"
   get "benchmark/db", to: "benchmarks#db"
 
+  get "/buy/:product_id", to: "store#show", as: :show_products,
+  constraints: { product_id: /[a-z0-9\-]+/ }
+
   get "/:category_id", to: "categories#index", as: :category_products,
   constraints: { category_id: /[a-z0-9\-]+/ }
+  get "/storage/*path", to: "storage#show", format: false
 end

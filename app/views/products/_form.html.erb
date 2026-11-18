@@ -1,6 +1,6 @@
 <%= hidden_field_tag 'categories_path', categories_path %>
 
-<%= form_with(model: @product, local: true, class: "form") do |f| %>
+<%= form_with(model: @product, local: true, multipart: true, class: "form",  data: { component: "product-form" }) do |f| %>
   <% if @product.errors.any? %>
     <div class="errors">
       <h2><%= pluralize(@product.errors.count, "error") %> prohibited this product:</h2>
@@ -42,6 +42,87 @@
         + New Category
       </button>
     </div>
+  </div>
+
+  <div class="field">
+    <%= f.label :tagline %>
+    <%= f.text_field :tagline, placeholder: "Short catchy line shown on listings" %>
+  </div>
+
+  <div class="field checkbox-field">
+    <%= f.check_box :is_new %>
+    <%= f.label :is_new, "Mark as New" %>
+  </div>
+
+  <div class="field">
+    <%= f.label :slug %>
+    <%= f.text_field :slug, placeholder: "auto-generated from name if left blank" %>
+    <small class="hint">Used in image storage path: products/&lt;id&gt;/&lt;slug&gt;. Leave blank to auto-generate.</small>
+  </div>
+
+  <div class="field">
+    <%= f.label :colors, "Colors" %>
+    <div id="color-picker-container" data-colors="<%= (@product.colors || []).to_json %>">
+      <div id="color-list" class="color-list">
+        <% (@product.colors || []).each_with_index do |color, i| %>
+          <div class="color-item" style="--swatch: <%= color %>;">
+            <input type="color" value="<%= color %>" class="color-input" data-index="<%= i %>">
+            <input type="text" class="color-text" value="<%= color %>" data-index="<%= i %>">
+            <button type="button" class="btn btn-danger remove-color">×</button>
+          </div>
+        <% end %>
+      </div>
+      <button type="button" id="add-color" class="btn btn-secondary">+ Add Color</button>
+      <!-- Hidden inputs submitted with the form -->
+      <div id="colors-hidden">
+        <% (@product.colors || []).each do |color| %>
+          <input type="hidden" name="product[colors][]" value="<%= color %>">
+        <% end %>
+      </div>
+    </div>
+    <small class="hint">Pick a color and it is stored as a hex string in a Postgres array.</small>
+  </div>
+
+  <div class="field">
+    <%= f.label :options, "Options (JSON)" %>
+    <%= f.text_area :options,
+        value: (@product.options.present? ? JSON.pretty_generate(@product.options) : "{}"),
+        rows: 8,
+        class: "code-textarea",
+        placeholder: '' %>
+    <small class="hint">Enter valid JSON. Stored as jsonb.</small>
+    <div id="options-error" class="error-msg" style="display:none;">Invalid JSON</div>
+  </div>
+
+  <div class="field">
+    <%= f.label :thumbnail, "Thumbnail Image" %>
+    <% if @product.thumbnail.present? %>
+      <div class="current-thumbnail">
+        <img src="<%= product_image_url(@product.thumbnail) %>" alt="Current thumbnail" style="max-width:160px;">
+      </div>
+    <% end %>
+    <%= file_field_tag "product[thumbnail_upload]",
+        accept: "image/*",
+        class: "file-input",
+        id: "product_thumbnail_upload" %>
+    <small class="hint">Saved to storage/products/&lt;id&gt;/&lt;slug&gt;_thumbnail.&lt;ext&gt;</small>
+  </div>
+
+  <div class="field">
+    <%= f.label :images, "Gallery Images" %>
+    <% if (@product.images || []).any? %>
+      <div class="current-images">
+        <% @product.images.each do |img| %>
+          <img src="<%= product_image_url(img) %>" alt="Gallery image" style="max-width:120px;margin-right:8px;">
+        <% end %>
+      </div>
+    <% end %>
+    <%= file_field_tag "product[image_uploads][]",
+        multiple: true,
+        accept: "image/*",
+        class: "file-input",
+        id: "product_image_uploads" %>
+    <small class="hint">Saved as storage/products/&lt;id&gt;/&lt;slug&gt;_index_slide_&lt;index&gt;.&lt;ext&gt;</small>
   </div>
 
   <div class="actions">

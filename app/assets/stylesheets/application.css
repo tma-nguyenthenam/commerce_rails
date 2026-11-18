@@ -177,12 +177,14 @@ code { font:13px ui-monospace,monospace; background:var(--bg); padding:1px 6px; 
   border-radius: 50%;
   border: none;
   background: #e8e8ed;
-  color: var(--text);
+  color: var(--muted);
   font-size: 16px;
   cursor: pointer;
   display: grid;
   place-items: center;
   transition: background .2s, transform .15s;
+  display: flex;
+  justify-content: center;
 }
 .nav-btn:hover { background: #dcdce1; }
 .nav-btn:active { transform: scale(.92); }
@@ -221,30 +223,70 @@ code { font:13px ui-monospace,monospace; background:var(--bg); padding:1px 6px; 
   transform: translateY(-6px);
   box-shadow: 0 12px 28px rgba(0,0,0,.12);
 }
-.card .emoji {
-  font-size: 56px;
-  line-height: 1.2;
+.card .thumbnail {
   margin: 12px 0 16px;
+  min-height: 230px;
 }
-.card h2 { font-size: 18px; font-weight: 600; }
+.card .product-title { font-size: 18px; font-weight: 600;}
 .card .tagline { color: var(--muted); font-size: 13px; margin: 6px 0 12px; }
-.card .price { font-size: 15px; font-weight: 600; margin-bottom: 14px; }
+.card .price { font-size: 14px; font-weight: 400; margin-bottom: 4px; }
 .card .buy {
   margin-top: auto;
-  background: var(--accent);
-  color: #fff;
+  background: var(--line);
+  color: var(--muted);
   border: none;
   border-radius: 980px;
-  padding: 9px 20px;
+  padding: 4px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: background .2s;
   text-decoration: none;
+  display: flex;
+  justify-content: center;
 }
-.card .buy:hover { background: #0077ed; }
+.card .buy:hover { opacity: 0.9; }
+.card .card-footer {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
 @media (max-width: 560px) {
   .store-head { flex-direction: column; align-items: flex-start; gap: 14px; }
   .card { flex-basis: 78%; }
+}
+.empty-product {
+  text-align: center;
+  font-size: 14px;
+}
+.product-title {
+  text-decoration: none;
+  color: var(--text);
+}
+.color-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.color-item .color-input {
+  width: 40px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+}
+.color-item .color-text {
+  width: 100px;
+  font-family: monospace;
+}
+.code-textarea.invalid {
+  border-color: #dc3545;
+  outline-color: #dc3545;
+}
+.error-msg {
+  color: #dc3545;
+  font-size: 0.875rem;
 }

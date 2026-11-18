@@ -86,8 +86,169 @@ export class CategoryDialog extends BaseComponent {
   }
 }
 
-// document.addEventListener("DOMContentLoaded", () => {
-//   new CategoryDialog({
-//     formUrl: document.getElementById('categories_path').value,
-//   }).init();
-// });
+export class ProductFormComponent extends BaseComponent {
+  init() {
+    this.form = this.container.querySelector("form") || this.container;
+
+    // Color picker
+    this.colorList   = this.container.querySelector("#color-list");
+    this.colorHidden = this.container.querySelector("#colors-hidden");
+    this.addColorBtn = this.container.querySelector("#add-color");
+
+    // Options JSON
+    this.optionsArea = this.container.querySelector('textarea[name="product[options]"]');
+    this.optionsError = this.container.querySelector("#options-error");
+
+    this.addEventListeners();
+    this.refreshColors();
+
+    // Bind any colors already rendered by the server
+    if (this.colorList) {
+      this.colorList
+        .querySelectorAll(".color-item")
+        .forEach((row) => this.bindColorRow(row));
+    }
+  }
+
+  addEventListeners() {
+    // ----- Color picker -----
+    if (this.addColorBtn) {
+      this.addColorBtn.addEventListener("click", (event) => this.onAddColor(event));
+    }
+
+    if (this.colorList) {
+      // Delegate: color/text input changes and remove button clicks
+      this.colorList.addEventListener("input", (event) => this.onColorListInput(event));
+      this.colorList.addEventListener("click", (event) => this.onColorListClick(event));
+    }
+
+    // ----- Options JSON -----
+    if (this.optionsArea) {
+      this.optionsArea.addEventListener("input", (event) => this.onOptionsInput(event));
+    }
+
+    // Prevent submit when JSON is invalid
+    if (this.form) {
+      this.form.addEventListener("submit", (event) => this.onFormSubmit(event));
+    }
+  }
+
+  // ---------- Colors ----------
+  onAddColor = () => {
+    this.addColor("#000000");
+  };
+
+  onColorListClick = (event) => {
+    if (event.target.classList.contains("remove-color")) {
+      const row = event.target.closest(".color-item");
+      if (row) row.remove();
+      this.refreshColors();
+    }
+  };
+
+  onColorListInput = (event) => {
+    const row = event.target.closest(".color-item");
+    if (!row) return;
+
+    const swatch = row.querySelector(".color-input");
+    const text   = row.querySelector(".color-text");
+
+    if (!swatch || !text) return;
+
+    if (event.target === swatch) {
+      text.value = swatch.value;
+    } else if (event.target === text) {
+      // Only sync swatch when the text is a valid hex
+      if (/^#[0-9a-fA-F]{6}$/.test(text.value)) {
+        swatch.value = text.value;
+      }
+    }
+
+    this.refreshColors();
+  };
+
+  addColor(value) {
+    if (!this.colorList) return;
+
+    const row = document.createElement("div");
+    row.className = "color-item";
+    row.style.setProperty("--swatch", value);
+    row.innerHTML = `
+      <input type="color" class="color-input" value="${value}">
+      <input type="text" class="color-text" value="${value}">
+      <button type="button" class="btn btn-danger remove-color">×</button>
+    `;
+    this.colorList.appendChild(row);
+    this.bindColorRow(row);
+    this.refreshColors();
+  }
+
+  bindColorRow(row) {
+    // Nothing to bind in delegation mode; kept for parity / server rows
+    // (the delegated listeners in `addEventListeners` already handle them)
+  }
+
+  /**
+   * Rebuild the hidden inputs so the form submits
+   * product[colors][] = ["#ff0000", ...]
+   */
+  refreshColors() {
+    if (!this.colorHidden || !this.colorList) return;
+
+    this.colorHidden.innerHTML = "";
+    this.colorList.querySelectorAll(".color-item").forEach((row) => {
+      const text = row.querySelector(".color-text");
+      if (!text || !text.value.trim()) return;
+
+      const input = document.createElement("input");
+      input.type  = "hidden";
+      input.name  = "product[colors][]";
+      input.value = text.value.trim();
+      this.colorHidden.appendChild(input);
+    });
+  }
+
+  // ---------- Options JSON ----------
+  onOptionsInput = () => {
+    if (!this.optionsArea || !this.optionsError) return;
+
+    try {
+      JSON.parse(this.optionsArea.value || "{}");
+      this.optionsError.style.display = "none";
+      this.optionsArea.classList.remove("invalid");
+    } catch (e) {
+      this.optionsError.style.display = "block";
+      this.optionsArea.classList.add("invalid");
+    }
+  };
+
+  onFormSubmit = (event) => {
+    // Ensure options is valid JSON before submit
+    if (this.optionsArea && this.optionsError) {
+      try {
+        JSON.parse(this.optionsArea.value || "{}");
+      } catch (e) {
+        event.preventDefault();
+        this.optionsError.style.display = "block";
+        this.optionsArea.focus();
+      }
+    }
+  };
+
+  destroy() {
+    if (this.addColorBtn) {
+      this.addColorBtn.removeEventListener("click", this.onAddColor);
+    }
+    if (this.colorList) {
+      this.colorList.removeEventListener("input", this.onColorListInput);
+      this.colorList.removeEventListener("click", this.onColorListClick);
+    }
+    if (this.optionsArea) {
+      this.optionsArea.removeEventListener("input", this.onOptionsInput);
+    }
+    if (this.form) {
+      this.form.removeEventListener("submit", this.onFormSubmit);
+    }
+    super.destroy();
+  }
+}

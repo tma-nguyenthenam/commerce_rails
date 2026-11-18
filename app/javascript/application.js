@@ -1,7 +1,7 @@
 // Configure your import map in config/importmap.rb. Read more: https://github.com/rails/importmap-rails
 import "@hotwired/turbo-rails"
 
-import { CategoryDialog } from "controllers/products_controller"
+import { CategoryDialog, ProductFormComponent } from "controllers/products_controller"
 import { SliderComponent } from "controllers/store_controller";
 
 document.addEventListener('turbo:load', () => {
@@ -15,6 +15,9 @@ document.addEventListener('turbo:load', () => {
         break;
       case 'slider':
         new SliderComponent(element);
+        break;
+      case 'product-form':
+        new ProductFormComponent(element);
         break;
     }
   });

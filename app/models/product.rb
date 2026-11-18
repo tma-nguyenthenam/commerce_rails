@@ -14,6 +14,9 @@ class Product < ApplicationRecord
 
   before_validation :generate_slug
 
+  # jsonb validation: options must be a Hash
+  validate :options_is_valid_hash
+
   private
 
   def sync_title_and_name
@@ -27,6 +30,16 @@ class Product < ApplicationRecord
   end
 
   def generate_slug
-    self.slug = name.to_s.parameterize if slug.blank?
+    if slug.blank? && name.present?
+      self.slug = name.parameterize
+    elsif slug.present?
+      self.slug = slug.parameterize
+    end
+  end
+
+  def options_is_valid_hash
+    unless options.is_a?(Hash)
+      errors.add(:options, "must be a JSON object")
+    end
   end
 end
