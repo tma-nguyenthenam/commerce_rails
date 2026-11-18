@@ -24,8 +24,8 @@
 <% if @products.empty? %>
   <p class="empty">Chưa có sản phẩm</p>
 <% else %>
-  <div class="slider-wrap">
-    <div class="slider" id="slider">
+  <div class="slider-wrap" data-component="slider">
+    <div class="slider">
       <% @products.each do |product| %>
         <article class="card">
           <div class="emoji"></div>
@@ -38,29 +38,3 @@
     </div>
   </div>
 <% end %>
-
-<script>
-  // Scroll one card at a time
-  const step = () => {
-    const card = slider.querySelector(".card");
-    return card ? card.offsetWidth + 18 : 280;
-  };
-
-  document.getElementById("nextBtn").addEventListener("click", () => {
-    slider.scrollBy({ left: step(), behavior: "smooth" });
-  });
-  document.getElementById("prevBtn").addEventListener("click", () => {
-    slider.scrollBy({ left: -step(), behavior: "smooth" });
-  });
-
-  // Disable arrows at the edges
-  const prevBtn = document.getElementById("prevBtn");
-  const nextBtn = document.getElementById("nextBtn");
-  function updateArrows() {
-    prevBtn.disabled = slider.scrollLeft <= 2;
-    nextBtn.disabled = slider.scrollLeft + slider.clientWidth >= slider.scrollWidth - 2;
-  }
-  slider.addEventListener("scroll", updateArrows);
-  window.addEventListener("resize", updateArrows);
-  updateArrows();
-</script>
