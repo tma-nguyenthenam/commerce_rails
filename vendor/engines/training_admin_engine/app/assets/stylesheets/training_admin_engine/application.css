@@ -201,7 +201,7 @@
   tr:last-child td { border-bottom: none; }
   tbody tr:hover { background: #f8fafc; }
   .pill { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; }
-  .pill.completed { background: #d1fae5; color: #065f46; }
+  .pill.paid { background: #d1fae5; color: #065f46; }
   .pill.pending { background: #fef3c7; color: #92400e; }
   .pill.cancelled { background: #fee2e2; color: #991b1b; }
   .thumb { width: 34px; height: 34px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; margin-right: 10px; vertical-align: middle; }

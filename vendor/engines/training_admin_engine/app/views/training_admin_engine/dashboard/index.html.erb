@@ -1,3 +1,6 @@
+<%= hidden_field_tag 'api_v1_dashboard_stats_path', api_v1_dashboard_stats_path %>
+<%= hidden_field_tag 'api_v1_dashboard_orders_path', api_v1_dashboard_orders_path %>
+
 <div class="title-row">
   <h1>Dashboard</h1>
   <div class="period muted" style="color:var(--muted);font-size:13px;">Last 30 days</div>
@@ -6,19 +9,19 @@
 <main class="content" data-component="dashboard">
   <!-- Stats -->
   <section class="stats">
-    <div class="stat">
+    <div class="stat" data-stat="Total Revenue">
       <div class="ico" style="background:#eef2ff;">💵</div>
       <div><div class="label">Total Revenue</div><div class="value">$48,290</div><div class="trend up">▲ 12.5%</div></div>
     </div>
-    <div class="stat">
+    <div class="stat" data-stat="Orders">
       <div class="ico" style="background:#ecfdf5;">📦</div>
       <div><div class="label">Orders</div><div class="value">1,284</div><div class="trend up">▲ 8.2%</div></div>
     </div>
-    <div class="stat">
+    <div class="stat" data-stat="Customers">
       <div class="ico" style="background:#fffbeb;">👥</div>
       <div><div class="label">Customers</div><div class="value">3,921</div><div class="trend up">▲ 4.7%</div></div>
     </div>
-    <div class="stat">
+    <div class="stat" data-stat="Refunds">
       <div class="ico" style="background:#fef2f2;">🛒</div>
       <div><div class="label">Refunds</div><div class="value">$1,120</div><div class="trend down">▼ 2.1%</div></div>
     </div>
@@ -48,7 +51,7 @@
 
   <!-- Recent orders -->
   <section class="panel" style="margin-top:16px;">
-    <div class="head"><h2>Recent Orders</h2><button class="link-btn" id="addRowBtn">+ Add sample row</button></div>
+    <div class="head"><h2>Recent Orders</h2></div>
     <div style="overflow-x:auto;">
       <table>
         <thead>
