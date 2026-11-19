@@ -40,7 +40,7 @@ services:
 
   payment_service:
     build:
-      context: ../payment_service
+      context: ./payment_service
       dockerfile: Dockerfile
     environment:
       GATEWAY_LATENCY: "1"
