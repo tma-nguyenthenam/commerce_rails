@@ -14,11 +14,14 @@ services:
       - OIDC_CLIENT_ID=${OIDC_CLIENT_ID}
       - OIDC_CLIENT_SECRET=${OIDC_CLIENT_SECRET}
       - OIDC_REDIRECT_URI=${OIDC_REDIRECT_URI}
+      - PAYMENT_SERVICE_URL=http://payment_service:9292
     depends_on:
       - db
+      - payment_service
     volumes:
       - .:/rails
       - bundle:/usr/local/bundle
+
   db:
     image: postgres:16
     container_name: commerce_api_db
@@ -34,6 +37,16 @@ services:
       interval: 3s
       timeout: 3s
       retries: 10
+
+  payment_service:
+    build:
+      context: ../payment_service
+      dockerfile: Dockerfile
+    environment:
+      GATEWAY_LATENCY: "1"
+    ports:
+      - "9292:9292"
+
 volumes:
   pgdata:
   bundle:

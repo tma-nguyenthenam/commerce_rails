@@ -56,7 +56,7 @@ class OrdersController < ApplicationController
   def pay
     # Dev: gateway chậm 1 giây, lỗi 20% (đổi bằng GATEWAY_LATENCY / GATEWAY_FAILURE_RATE).
     # Dùng chung một instance qua class-level để nhớ idempotency_key giữa các lần bấm.
-    result = Orders::Pay.call(params[:id], gateway: self.class.gateway)
+    result = Orders::Pay.call(params[:id], gateway: Payments::SinatraGateway.new)
 
     if result.success?
       redirect_to order_path(params[:id]), notice: "Thanh toán thành công."
