@@ -70,4 +70,6 @@ Rails.application.configure do
 
   # config.file_watcher = ActiveSupport::EventedFileUpdateChecker
   config.file_watcher = ActiveSupport::FileUpdateChecker
+
+  config.public_file_server.enabled = true
 end

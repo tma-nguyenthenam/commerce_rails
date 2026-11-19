@@ -1,0 +1,61 @@
+<div class="title-row">
+  <h1>Dashboard</h1>
+  <div class="period muted" style="color:var(--muted);font-size:13px;">Last 30 days</div>
+</div>
+
+<main class="content" data-component="dashboard">
+  <!-- Stats -->
+  <section class="stats">
+    <div class="stat">
+      <div class="ico" style="background:#eef2ff;">💵</div>
+      <div><div class="label">Total Revenue</div><div class="value">$48,290</div><div class="trend up">▲ 12.5%</div></div>
+    </div>
+    <div class="stat">
+      <div class="ico" style="background:#ecfdf5;">📦</div>
+      <div><div class="label">Orders</div><div class="value">1,284</div><div class="trend up">▲ 8.2%</div></div>
+    </div>
+    <div class="stat">
+      <div class="ico" style="background:#fffbeb;">👥</div>
+      <div><div class="label">Customers</div><div class="value">3,921</div><div class="trend up">▲ 4.7%</div></div>
+    </div>
+    <div class="stat">
+      <div class="ico" style="background:#fef2f2;">🛒</div>
+      <div><div class="label">Refunds</div><div class="value">$1,120</div><div class="trend down">▼ 2.1%</div></div>
+    </div>
+  </section>
+
+  <!-- Charts -->
+  <section class="grid">
+    <div class="panel">
+      <div class="head"><h2>Revenue Overview</h2><button class="link-btn">View report →</button></div>
+      <div class="chart" id="chart"></div>
+    </div>
+    <div class="panel">
+      <div class="head"><h2>Sales by Category</h2></div>
+      <div class="donut-wrap">
+        <div class="donut">
+          <div class="center"><b>1,284</b><small>orders</small></div>
+        </div>
+        <div class="legend">
+          <div class="row"><span class="sw" style="background:#6366f1"></span>Electronics <span class="val">40%</span></div>
+          <div class="row"><span class="sw" style="background:#10b981"></span>Clothing <span class="val">28%</span></div>
+          <div class="row"><span class="sw" style="background:#f59e0b"></span>Home & Garden <span class="val">18%</span></div>
+          <div class="row"><span class="sw" style="background:#ef4444"></span>Other <span class="val">14%</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recent orders -->
+  <section class="panel" style="margin-top:16px;">
+    <div class="head"><h2>Recent Orders</h2><button class="link-btn" id="addRowBtn">+ Add sample row</button></div>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr><th>Order</th><th>Customer</th><th>Product</th><th>Date</th><th>Amount</th><th>Status</th></tr>
+        </thead>
+        <tbody id="ordersBody"></tbody>
+      </table>
+    </div>
+  </section>
+</main>

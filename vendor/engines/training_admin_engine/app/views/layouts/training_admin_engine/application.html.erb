@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Store Admin</title>
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+
+  <%= yield :head %>
+
+  <%= stylesheet_link_tag    "training_admin_engine/application", media: "all" %>
+  <%= javascript_include_tag "training_admin_engine/application", defer: true %>
+  <%= javascript_importmap_tags %>
+</head>
+<body>
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="logo">🛒</div>
+      <span class="label">Store Admin</span>
+    </div>
+    <nav class="nav">
+      <div class="nav-section-title">Main</div>
+      <div class="nav-item active"><span class="icon">📊</span><span class="label">Dashboard</span></div>
+      <div class="nav-item"><span class="icon">📦</span><span class="label">Orders</span><span class="badge">12</span></div>
+      <div class="nav-item"><span class="icon">🏷️</span><span class="label">Products</span></div>
+      <div class="nav-item"><span class="icon">🗂️</span><span class="label">Categories</span></div>
+      <div class="nav-section-title">People</div>
+      <div class="nav-item"><span class="icon">👥</span><span class="label">Customers</span></div>
+      <div class="nav-item"><span class="icon">🧑‍💼</span><span class="label">Staff</span></div>
+      <div class="nav-section-title">Insights</div>
+      <div class="nav-item"><span class="icon">📈</span><span class="label">Analytics</span></div>
+      <div class="nav-item"><span class="icon">💰</span><span class="label">Revenue</span></div>
+      <div class="nav-section-title">System</div>
+      <div class="nav-item"><span class="icon">⚙️</span><span class="label">Settings</span></div>
+      <div class="nav-item"><span class="icon">❓</span><span class="label">Help Center</span></div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="avatar"><%= generate_avatar_initial(current_user.name) if current_user.name.presence %></div>
+        <div class="meta">
+          <div class="name"><%= current_user.name.presence || current_user.email %></div>
+          <div class="role">Administrator</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <header class="topbar">
+      <button class="collapse-btn" id="collapseBtn" title="Toggle sidebar">☰</button>
+      <div class="search">🔍 <input id="searchInput" type="text" placeholder="Search orders, products, customers..." /></div>
+      <div class="right">
+        <button class="icon-btn">🔔<span class="dot"></span></button>
+        <button class="icon-btn">✉️<span class="dot"></span></button>
+      </div>
+    </header>
+    <%= yield %>
+  </div>
+</div>
+
+</body>
+</html>

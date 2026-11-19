@@ -3,6 +3,7 @@ import "@hotwired/turbo-rails"
 
 import { CategoryDialog, ProductFormComponent } from "controllers/products_controller"
 import { SliderComponent } from "controllers/store_controller";
+import { DashboardComponent } from "controllers/dashboard_controller";
 
 document.addEventListener('turbo:load', () => {
   // Find all elements with data-component attribute
@@ -19,6 +20,8 @@ document.addEventListener('turbo:load', () => {
       case 'product-form':
         new ProductFormComponent(element);
         break;
+      case 'dashboard':
+        new DashboardComponent(element);
     }
   });
 });
