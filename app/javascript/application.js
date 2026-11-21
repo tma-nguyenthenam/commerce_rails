@@ -1,7 +1,7 @@
 // Configure your import map in config/importmap.rb. Read more: https://github.com/rails/importmap-rails
 import "@hotwired/turbo-rails"
 
-import { CategoryDialog, ProductFormComponent } from "controllers/products_controller"
+import { CategoryDialog, ProductFormComponent, ProductDetailComponent } from "controllers/products_controller"
 import { SliderComponent } from "controllers/store_controller";
 import { DashboardComponent } from "controllers/dashboard_controller";
 
@@ -10,7 +10,7 @@ document.addEventListener('turbo:load', () => {
   document.querySelectorAll('[data-component]').forEach(element => {
     const componentName = element.dataset.component;
 
-    switch(componentName) {
+    switch (componentName) {
       case 'category-dialog':
         new CategoryDialog(element);
         break;
@@ -22,6 +22,9 @@ document.addEventListener('turbo:load', () => {
         break;
       case 'dashboard':
         new DashboardComponent(element);
+      case 'product-detail':
+        new ProductDetailComponent(element);
+        break;
     }
   });
 });

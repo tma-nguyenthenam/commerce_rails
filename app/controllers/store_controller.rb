@@ -7,6 +7,7 @@ class StoreController < ApplicationController
   end
 
   def show
+    @idempotency_key = SecureRandom.uuid
     @product = if params[:product_id].to_s.match?(/\A\d+\z/)
       Product.find(params[:product_id])
     else

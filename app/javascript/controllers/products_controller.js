@@ -91,7 +91,7 @@ export class ProductFormComponent extends BaseComponent {
     this.form = this.container.querySelector("form") || this.container;
 
     // Color picker
-    this.colorList   = this.container.querySelector("#color-list");
+    this.colorList = this.container.querySelector("#color-list");
     this.colorHidden = this.container.querySelector("#colors-hidden");
     this.addColorBtn = this.container.querySelector("#add-color");
 
@@ -151,7 +151,7 @@ export class ProductFormComponent extends BaseComponent {
     if (!row) return;
 
     const swatch = row.querySelector(".color-input");
-    const text   = row.querySelector(".color-text");
+    const text = row.querySelector(".color-text");
 
     if (!swatch || !text) return;
 
@@ -201,8 +201,8 @@ export class ProductFormComponent extends BaseComponent {
       if (!text || !text.value.trim()) return;
 
       const input = document.createElement("input");
-      input.type  = "hidden";
-      input.name  = "product[colors][]";
+      input.type = "hidden";
+      input.name = "product[colors][]";
       input.value = text.value.trim();
       this.colorHidden.appendChild(input);
     });
@@ -250,5 +250,76 @@ export class ProductFormComponent extends BaseComponent {
       this.form.removeEventListener("submit", this.onFormSubmit);
     }
     super.destroy();
+  }
+}
+
+export class ProductDetailComponent extends BaseComponent {
+  init() {
+    document.body.style.backgroundColor = '#fff';
+    this.imageGallery();
+    this.optionsEvent();
+    window.toast = this.toast;
+  }
+
+  imageGallery() {
+    // ---- Image gallery slider ----
+    const jsonValue = document.getElementById("gallery_items")?.value;
+    const galleryImages = JSON.parse(jsonValue) || [];
+
+    const track = document.getElementById("galleryTrack");
+    const dotsWrap = document.getElementById("galleryDots");
+    let currentSlide = 0;
+
+    function goToSlide(i) {
+      currentSlide = Math.max(0, Math.min(galleryImages.length - 1, i));
+      track.style.transform = `translateX(-${currentSlide * 100}%)`;
+      dotsWrap.querySelectorAll(".dot").forEach((d, di) =>
+        d.classList.toggle("active", di === currentSlide)
+      );
+    }
+
+    dotsWrap.addEventListener("click", (e) => {
+      const dot = e.target.closest(".dot");
+      if (dot) goToSlide(Number(dot.dataset.index));
+    });
+    document.getElementById("galleryNext").addEventListener("click", () => goToSlide(currentSlide + 1));
+    document.getElementById("galleryPrev").addEventListener("click", () => goToSlide(currentSlide - 1));
+  }
+
+  toast(msg) {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 2200);
+  }
+
+
+  showToast(msg) {
+    this.toast(`\u2713 ${msg} \u2014 ${config.size}, ${config.color}, ${config.storage}`);
+  }
+
+  optionsEvent() {
+    const config = { color: "Black Titanium", size: "6.3-inch iPhone 16 Pro", storage: "128GB" };
+    let totalUpgrade = 0;
+
+    document.querySelectorAll(".options").forEach(group => {
+      const block = group.closest(".config-block");
+      const step = block.dataset.step;
+      group.addEventListener("click", (e) => {
+        const opt = e.target.closest(".option");
+        if (!opt) return;
+        group.querySelectorAll(".option").forEach(o => o.classList.remove("selected"));
+        opt.classList.add("selected");
+        config[step] = opt.dataset.name;
+
+        // recompute total upgrades across all steps
+        totalUpgrade = ["color", "size", "storage"].reduce((sum, s) => {
+          const sel = document.querySelector(`.config-block[data-step="${s}"] .option.selected`);
+          return sum + Number(sel?.dataset.upgrade || 0);
+        }, 0);
+
+        document.getElementById("barPrice").textContent = "From $" + (BASE_PRICE + totalUpgrade).toLocaleString();
+      });
+    });
   }
 }

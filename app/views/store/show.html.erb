@@ -1,1 +1,76 @@
-<h1>Shop <%= @product[:name] %></h1>
+<div data-component="product-detail">
+  <header class="hero">
+    <% unless @product.is_new %>
+    <span class="new-badge">New</span>
+    <% end %>
+    <h2>Shop <%= @product.name %></h2>
+    <p>Buy from <%= vnd @product.price %></p>
+    <div class="product-container">
+      <div class="gallery-container">
+        <div class="gallery" id="gallery">
+          <%= hidden_field_tag :gallery_items, @product.images.to_json %>
+          <div class="gallery-track" id="galleryTrack">
+            <% if @product.images.present? %>
+              <% @product.images.each do |image_url| %>
+                <div class="gallery-slide">
+                  <%= image_tag product_image_url(image_url), alt: @product.name, size: '500x500', class: "img-responsive" %>
+                </div>
+              <% end %>
+            <% else %>
+              <div class="gallery-slide">
+                <span>No images available</span>
+              </div>
+            <% end %>
+          </div>
+          <button class="gallery-arrow prev" id="galleryPrev" aria-label="Previous image">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><title>chevron-left</title><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m14 8l-4 4l4 4"/></svg>
+          </button>
+          <button class="gallery-arrow next" id="galleryNext" aria-label="Next image">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><title>chevron-right</title><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m10 16l4-4l-4-4"/></svg>
+          </button>
+        </div>
+        <div class="gallery-dots" id="galleryDots">
+          <% if @product.images.present? %>
+            <% @product.images.each_with_index do |image_url, index| %>
+              <button class="dot <%= index == 0 ? 'active' : '' %>" data-index="<%= index %>" aria-label="<%= index %>"></button>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+      <div class="options-container">
+        <div class="config-block">
+          <h3>Finish. Pick your favorite.</h3>
+          <div class="options" style="display: flex">
+            <% if @product.colors.present? %>
+              <% @product.colors.each_with_index do |color, index| %>
+                <div class="option <%= index == 0 ? 'selected' : '' %>" data-name="<%= color %>" data-art="&<%= color %>" data-upgrade="0">
+                  <div class="swatch" style="background:<%= color %>"></div>
+                </div>
+              <% end %>
+            <% else %>
+              <span>No colors available</span>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="price-confirm">Buy from  <%= vnd @product.price %> or  <%= vnd @product.price / 24 %>/mo. for 24 mo.</div>
+
+        <%= form_with url: orders_path, method: :post do %>
+          <%= hidden_field_tag :idempotency_key, @idempotency_key %>
+          <%= hidden_field_tag "items[#{@product.id}]", "1" %>
+          <div class="cta-row">
+            <%= submit_tag "Continue", class: "btn btn-full", id: "add_to_bag" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+    
+    <p class="price-note">From  <%= vnd @product.price %> or  <%= vnd @product.price / 24 %>/mo. for 24 mo. before trade-in*<br />Get $40&ndash;$650 in credit toward <%= @product.name %> when you trade in.**</p>
+  </header>
+
+  <footer>
+    * Pricing shown is for illustration. Monthly pricing requires a 24-month installment loan.<br />
+    ** Trade-in values vary based on condition, year, and configuration.<br /><br />
+  </footer>
+  <div class="toast" id="toast"></div>
+</div>

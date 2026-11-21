@@ -32,7 +32,9 @@
     <div class="slider">
       <% @products.each do |product| %>
         <article class="card">
-          <div class="thumbnail"><%= image_tag(product_image_url(product[:thumbnail]), alt: product[:name], size: '230x230') %></div>
+          <%= link_to show_products_path(product[:slug].presence || product[:id]) do %>
+            <div class="thumbnail"><%= image_tag(product_image_url(product[:thumbnail]), alt: product[:name], size: '230x230') %></div>
+          <% end %>
           <div class="product-title"><%= link_to product[:title], show_products_path(product[:slug].presence || product[:id]), class: "product-title" %></div>
           <p class="tagline"><%= product[:tagline] %></p>
           <div class="card-footer">
