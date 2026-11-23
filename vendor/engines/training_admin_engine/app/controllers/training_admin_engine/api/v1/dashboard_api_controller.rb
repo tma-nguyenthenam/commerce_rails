@@ -1,7 +1,7 @@
 module TrainingAdminEngine
   module Api
     module V1
-      class DashboardController < ActionController::API
+      class DashboardApiController < ActionController::API
         def stats
           current   = period_range(0)
           previous  = period_range(1)
@@ -42,6 +42,18 @@ module TrainingAdminEngine
           render json: { rows: rows }
         end
           
+        def total_orders_by_month
+          current     = period_range(0)
+          orders_now  = Order.where(created_at: current).count
+
+          render json: {total_orders: orders_now }
+        end
+
+        def products
+          products = Products.all
+          render json: { products: products }
+        end
+
         private
 
         PERIOD_DAYS = 30
@@ -99,7 +111,7 @@ module TrainingAdminEngine
             order_id:      order.id,
             order_status:  order.status,
             order_total:   ActionController::Base.helpers.number_to_currency(order.total,  unit: "₫", delimiter: ".", separator: ","),
-            created_at:    order.created_at.strftime('%FT%T'),
+            created_at:    order.created_at.strftime("%d %b %Y %H:%M"),
             customer_id:   order.user_id,
             customer_name: order.user&.name || "Deleted customer"
           }

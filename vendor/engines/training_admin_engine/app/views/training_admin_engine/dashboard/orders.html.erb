@@ -1,0 +1,29 @@
+<div class="title-row">
+  <h1>Orders</h1>
+</div>
+
+<main class="content" data-component="orders-controller">
+  <section class="panel" style="margin-top:16px;">
+    <div class="head"><h2>Orders</h2></div>
+    <p class="muted"><%= @orders.size %> đơn</p>
+
+    <% if @orders.empty? %>
+      <p class="empty">Chưa có đơn hàng.</p>
+    <% else %>
+      <table>
+        <thead><tr><th>#</th><th>Khách</th><th>Trạng thái</th><th>Idempotency key</th><th class="num">Tổng</th></tr></thead>
+        <tbody>
+          <% @orders.each do |order| %>
+            <tr>
+              <td><%= order.id %></td>
+              <td><%= order.user.name %></td>
+              <td><%= order.status %></td>
+              <td><code><%= order.idempotency_key %></code></td>
+              <td class="num"><%= order.total %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% end %>
+  </section>
+</main>

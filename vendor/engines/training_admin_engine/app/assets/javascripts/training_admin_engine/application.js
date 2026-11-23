@@ -5,33 +5,32 @@ document.getElementById("collapseBtn").addEventListener("click", () => {
 });
 
 /* Nav active state */
-document.querySelectorAll(".nav-item").forEach(item => {
+const navItems = document.querySelectorAll(".nav-item");
+
+function updateActiveNavItem() {
+  const currentUrl = new URL(window.location.href);
+
+  navItems.forEach(item => {
+    const href = item.dataset.href;
+    const isActive =
+      href && new URL(href, window.location.href).pathname === currentUrl.pathname;
+
+    item.classList.toggle("active", Boolean(isActive));
+  });
+}
+
+navItems.forEach(item => {
   item.addEventListener("click", () => {
-    document.querySelectorAll(".nav-item").forEach(i => i.classList.remove("active"));
-    item.classList.add("active");
+    const href = item.dataset.href;
+
+    if (href) {
+      window.location.href = href;
+    }
   });
 });
 
-/* ----- Revenue bar chart ----- */
-const months = [
-  ["Jun", 62], ["Jul", 48], ["Aug", 74], ["Sep", 55],
-  ["Oct", 83], ["Nov", 68], ["Dec", 92], ["Jan", 58],
-  ["Feb", 71], ["Mar", 64], ["Apr", 88], ["May", 78]
-];
-const chart = document.getElementById("chart");
-months.forEach(([m, v]) => {
-  const col = document.createElement("div");
-  col.className = "bar-col";
-  col.innerHTML = '<div class="bar" data-val="$' + (v * 0.6).toFixed(1) + 'k" style="height:0"></div><span class="m">' + m + '</span>';
-  chart.appendChild(col);
-});
-requestAnimationFrame(() => {
-  requestAnimationFrame(() => {
-    document.querySelectorAll(".bar").forEach((b, i) => {
-      b.style.height = months[i][1] + "%";
-    });
-  });
-});
+updateActiveNavItem();
+
 
 /* Search filter on table */
 document.getElementById("searchInput").addEventListener("input", e => {
@@ -40,3 +39,14 @@ document.getElementById("searchInput").addEventListener("input", e => {
     tr.style.display = tr.textContent.toLowerCase().includes(q) ? "" : "none";
   });
 });
+
+function getTotalOrders() {
+  const url = document.getElementById('api_v1_dashboard_api_total_orders_by_month_path')?.value;
+  fetch(url)
+    .then(r => r.json())
+    .then(({ total_orders }) => {
+      document.getElementById("total_order").textContent = total_orders;
+    })
+}
+
+getTotalOrders();

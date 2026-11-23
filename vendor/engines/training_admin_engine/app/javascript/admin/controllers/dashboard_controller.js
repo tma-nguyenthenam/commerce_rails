@@ -6,6 +6,7 @@ export class DashboardComponent extends BaseComponent {
 
     this.orderTableBody = document.getElementById("ordersBody");
     this.getDashboardStats();
+    this.getRevenueBarChart();
     this.getRecentOrdersTable();
   }
 
@@ -24,6 +25,29 @@ export class DashboardComponent extends BaseComponent {
             `${arrow} ${s.change}%`;
         });
       })
+  }
+
+  getRevenueBarChart() {
+    /* ----- Revenue bar chart ----- */
+    const months = [
+      ["Jun", 62], ["Jul", 48], ["Aug", 74], ["Sep", 55],
+      ["Oct", 83], ["Nov", 68], ["Dec", 92], ["Jan", 58],
+      ["Feb", 71], ["Mar", 64], ["Apr", 88], ["May", 78]
+    ];
+    const chart = document.getElementById("chart");
+    months.forEach(([m, v]) => {
+      const col = document.createElement("div");
+      col.className = "bar-col";
+      col.innerHTML = '<div class="bar" data-val="$' + (v * 0.6).toFixed(1) + 'k" style="height:0"></div><span class="m">' + m + '</span>';
+      chart.appendChild(col);
+    });
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        document.querySelectorAll(".bar").forEach((b, i) => {
+          b.style.height = months[i][1] + "%";
+        });
+      });
+    });
   }
 
   getRecentOrdersTable() {
