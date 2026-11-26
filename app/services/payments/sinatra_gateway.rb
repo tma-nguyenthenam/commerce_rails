@@ -1,6 +1,7 @@
 require "net/http"
 require "json"
 require_relative "gateway_timeout"
+require "openssl"
 
 module Payments
   class SinatraGateway
@@ -16,40 +17,69 @@ module Payments
       @base_url = base_url
     end
 
-    def charge(amount:, idempotency_key:)
-      uri = URI("#{@base_url}/payments/charge")
+    
+    
+  def charge(amount:, idempotency_key:)
+    uri = URI("#{@base_url}/payments/charge")
 
-      request = Net::HTTP::Post.new(uri)
-      request["Content-Type"] = "application/json"
+    request = Net::HTTP::Post.new(uri)
+    request["Content-Type"] = "application/json"
+    request["Host"] = "localhost"
 
-      request.body = {
-        amount: amount,
-        idempotency_key: idempotency_key
-      }.to_json
+    # 1. Create request body
+    request.body = {
+      amount: amount,
+      idempotency_key: idempotency_key
+    }.to_json
 
-      http_response = Net::HTTP.start(
-        uri.host,
-        uri.port,
-        use_ssl: uri.scheme == "https",
-        open_timeout: 2,
-        read_timeout: 10
-      ) do |http|
-        http.request(request)
-      end
+    # 2. Create timestamp
+    timestamp = Time.now.to_i.to_s
 
-      data = JSON.parse(http_response.body)
+    # 3. Sign timestamp + request body
+    secret = ENV.fetch("PAYMENT_SECRET")
 
-      unless http_response.is_a?(Net::HTTPSuccess) && data["success"]
-        raise "Payment service error: #{data["error"] || http_response.code}"
-      end
+    signed_payload = "#{timestamp}.#{request.body}"
+    puts "=== RAILS HMAC DEBUG ==="
+    puts "Timestamp: #{timestamp}"
+    puts "Body SHA256: #{OpenSSL::Digest::SHA256.hexdigest(request.body)}"
+    puts "Payload SHA256: #{OpenSSL::Digest::SHA256.hexdigest(signed_payload)}"
 
-      Response.new(
-        success: data["success"],
-        external_id: data["external_id"]
-      )
+    signature = OpenSSL::HMAC.hexdigest(
+      "SHA256",
+      secret,
+      signed_payload
+    )
 
-    rescue Net::OpenTimeout, Net::ReadTimeout, Errno::ECONNREFUSED
-      raise Payments::GatewayTimeout, "Payment service timeout"
+    # 4. Add security headers
+    request["X-Webhook-Timestamp"] = timestamp
+    request["X-Signature"] = "sha256=#{signature}"
+
+    # 5. Send request
+    http_response = Net::HTTP.start(
+      uri.host,
+      uri.port,
+      use_ssl: uri.scheme == "https",
+      open_timeout: 2,
+      read_timeout: 10
+    ) do |http|
+      http.request(request)
     end
+
+    data = JSON.parse(http_response.body)
+
+    unless http_response.is_a?(Net::HTTPSuccess) && data["success"]
+      raise "Payment service error: #{data["error"] || http_response.code}"
+    end
+
+    Response.new(
+      success: data["success"],
+      external_id: data["external_id"]
+    )
+
+  rescue Net::OpenTimeout, Net::ReadTimeout, Errno::ECONNREFUSED
+    raise Payments::GatewayTimeout, "Payment service timeout"
+  end
+
+
   end
 end

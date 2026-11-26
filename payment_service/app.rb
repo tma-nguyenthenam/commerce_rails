@@ -1,7 +1,10 @@
 
-require "sinatra"
+require "sinatra/base"
 require "json"
-require "securerandom"
+require "openssl"
+
+require_relative "gateways/fake_gateway"
+require_relative "service/payment_processor"
 
 class PaymentService < Sinatra::Base
   set :host_authorization, {
@@ -11,9 +14,14 @@ class PaymentService < Sinatra::Base
       "127.0.0.1"
     ]
   }
-  # Lưu kết quả thanh toán theo idempotency key
-  GATEWAY_LATENCY = ENV.fetch("GATEWAY_LATENCY", "1").to_f
-  PAYMENTS = {}
+  
+  gateway = FakeGateway.new(
+    latency: ENV.fetch("GATEWAY_LATENCY", "1").to_f
+  )
+
+  set :payment_processor, PaymentProcessor.new(
+    gateway: gateway
+  )
 
   before do
     content_type :json
@@ -28,44 +36,65 @@ class PaymentService < Sinatra::Base
 
   
   post "/payments/charge" do
-    data = JSON.parse(request.body.read)
+    body = request.body.read
 
-    amount = data["amount"]
-    idempotency_key = data["idempotency_key"]
+    # 1. Validate timestamp
+    timestamp = request.env["HTTP_X_WEBHOOK_TIMESTAMP"].to_s
 
-    if amount.nil? || amount.to_f <= 0
-        status 422
-        return { error: "invalid_amount" }.to_json
+    unless timestamp.match?(/\A\d{10}\z/)
+      halt 401, { error: "invalid_timestamp" }.to_json
     end
 
-    if idempotency_key.nil? || idempotency_key.empty?
-        status 422
-        return { error: "missing_idempotency_key" }.to_json
+    timestamp_value = timestamp.to_i
+
+    # Allow only 5 minutes of clock difference
+    if (Time.now.to_i - timestamp_value).abs > 300
+      halt 401, { error: "expired_request" }.to_json
     end
 
-    # 1. Kiểm tra giao dịch đã tồn tại
-    if PAYMENTS.key?(idempotency_key)
-        puts "Returning existing payment: #{idempotency_key}"
+    # 2. Verify HMAC signature
+    secret = ENV.fetch("PAYMENT_SECRET")
 
-        return PAYMENTS[idempotency_key].to_json
+    signed_payload = "#{timestamp}.#{body}"
+    warn "=== SINATRA HMAC DEBUG ==="
+    warn "Timestamp: #{timestamp}"
+    warn "Body SHA256: #{OpenSSL::Digest::SHA256.hexdigest(body)}"
+    warn "Payload SHA256: #{OpenSSL::Digest::SHA256.hexdigest(signed_payload)}"
+
+    expected_signature = OpenSSL::HMAC.hexdigest(
+      "SHA256",
+      secret,
+      signed_payload
+    )
+
+    received_signature = request.env["HTTP_X_SIGNATURE"].to_s
+    received_signature = received_signature.delete_prefix("sha256=")
+    warn "Received signature length: #{received_signature.bytesize}"
+    warn "Received signature format: #{received_signature.match?(/\A[0-9a-f]{64}\z/)}"
+    warn "Signature match: #{received_signature == expected_signature}"
+
+    valid_signature =
+      received_signature.match?(/\A[0-9a-f]{64}\z/) &&
+      OpenSSL.fixed_length_secure_compare(
+        received_signature,
+        expected_signature
+      )
+
+    halt 401, { error: "invalid_signature" }.to_json unless valid_signature
+
+    # 3. Parse JSON
+    begin
+      data = JSON.parse(body)
+    rescue JSON::ParserError
+      halt 400, { error: "invalid_json" }.to_json
     end
 
-    # 2. Tạo giao dịch
-    payment = {
-        success: true,
-        external_id: "pay_#{SecureRandom.hex(8)}",
-        amount: amount
-    }
+    # 4. Process payment with event deduplication
+    payment = settings.payment_processor.charge(
+      amount: data["amount"],
+      idempotency_key: data["idempotency_key"]
+    )
 
-    # 3. Lưu kết quả trước khi trả response
-    PAYMENTS[idempotency_key] = payment
-
-    puts "Payment created: #{payment[:external_id]}"
-
-    # 4. Mô phỏng xử lý chậm
-    sleep GATEWAY_LATENCY
-
-    # 5. Trả kết quả
     payment.to_json
   end
 

@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  mount MyRackApp.new, at: "/rack"
   mount TrainingAdminEngine::Engine => "/admin"
   get "up" => "rails/health#show", as: :rails_health_check
 

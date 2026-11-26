@@ -12,6 +12,8 @@ require "action_mailbox/engine"
 require "action_text/engine"
 require "action_view/railtie"
 require "action_cable/engine"
+require_relative "../lib/my_rack_app"
+require_relative "../lib/middleware/request_logger"
 # require "rails/test_unit/railtie"
 
 # Require the gems listed in Gemfile, including any gems
@@ -40,5 +42,7 @@ module CommerceApi
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
     config.importmap.cache_sweepers << Rails.root.join("app/javascript")
+
+    config.middleware.use RequestLogger
   end
 end

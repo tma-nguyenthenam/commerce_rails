@@ -15,6 +15,7 @@ services:
       - OIDC_CLIENT_SECRET=${OIDC_CLIENT_SECRET}
       - OIDC_REDIRECT_URI=${OIDC_REDIRECT_URI}
       - PAYMENT_SERVICE_URL=http://payment_service:9292
+      - PAYMENT_SECRET=${PAYMENT_SECRET}
     depends_on:
       - db
       - payment_service
@@ -44,6 +45,7 @@ services:
       dockerfile: Dockerfile
     environment:
       GATEWAY_LATENCY: "1"
+      PAYMENT_SECRET: ${PAYMENT_SECRET}
     ports:
       - "9292:9292"
 
