@@ -4,6 +4,7 @@
 # CSRF token, nên endpoint này phải tắt CSRF. (Thay vào đó, ở production bạn xác thực
 # bằng chữ ký HMAC trong header; ở bài học này ta bỏ qua cho đơn giản.)
 class WebhooksController < ApplicationController
+  include WebhookSignatureVerification
   skip_forgery_protection
 
   def payments

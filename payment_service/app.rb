@@ -5,8 +5,15 @@ require "openssl"
 
 require_relative "gateways/fake_gateway"
 require_relative "service/payment_processor"
+require_relative "config/database"
+require_relative "models/payment"
+require_relative "middleware/signature_verifier"
+require_relative "routes/webhooks"
+require_relative "gateways/fake_payment_provider"
 
 class PaymentService < Sinatra::Base
+  use Webhooks::SignatureVerifier
+  register Webhooks::Routes
   set :host_authorization, {
     permitted_hosts: [
       "payment_service",
@@ -19,8 +26,15 @@ class PaymentService < Sinatra::Base
     latency: ENV.fetch("GATEWAY_LATENCY", "1").to_f
   )
 
+  provider = FakePaymentProvider.new(
+    webhook_url: "http://127.0.0.1:9292/webhooks/payments",
+    secret: ENV.fetch("PAYMENT_SECRET"),
+    latency: 2
+  )
+
   set :payment_processor, PaymentProcessor.new(
-    gateway: gateway
+    gateway: gateway,
+    provider: provider
   )
 
   before do
@@ -91,6 +105,7 @@ class PaymentService < Sinatra::Base
 
     # 4. Process payment with event deduplication
     payment = settings.payment_processor.charge(
+      order_id: data["order_id"],
       amount: data["amount"],
       idempotency_key: data["idempotency_key"]
     )

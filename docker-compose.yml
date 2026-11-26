@@ -46,8 +46,43 @@ services:
     environment:
       GATEWAY_LATENCY: "1"
       PAYMENT_SECRET: ${PAYMENT_SECRET}
+      DATABASE_URL: postgres://commerce:password@db:5432/commerce
     ports:
       - "9292:9292"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./payment_service:/app
+  webhook_worker:
+    build:
+      context: ./payment_service
+      dockerfile: Dockerfile
+    command:
+      - bundle
+      - exec
+      - ruby
+      - -e
+      - |
+        require_relative "./config/database"
+        require_relative "./workers/webhook_worker_runner"
+
+        runner = Webhooks::WebhookWorkerRunner.new(
+          poll_interval: 2
+        )
+
+        runner.run
+    environment:
+      GATEWAY_LATENCY: "1"
+      PAYMENT_SECRET: ${PAYMENT_SECRET}
+      DATABASE_URL: postgres://commerce:password@db:5432/commerce
+      RAILS_WEBHOOK_URL: http://web:3000/webhooks/payments
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./payment_service:/app
+    restart: unless-stopped
 
 volumes:
   pgdata:

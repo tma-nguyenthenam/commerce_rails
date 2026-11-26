@@ -1,50 +1,77 @@
 
-require "thread"
-
 class PaymentProcessor
-  def initialize(gateway:)
+  def initialize(gateway:, provider:)
     @gateway = gateway
-    @payments = {}
-    @mutex = Mutex.new
+    @provider = provider
   end
 
-  def charge(amount:, idempotency_key:)
-    validate!(amount, idempotency_key)
+  def charge(order_id:, amount:, idempotency_key:)
+    validate!(order_id, amount, idempotency_key)
 
-    @mutex.synchronize do
-      # Return existing payment if already processed
-      if @payments.key?(idempotency_key)
-        puts "Returning existing payment: #{idempotency_key}"
-        return @payments[idempotency_key]
-      end
+    existing_payment = Payment.find_by(
+      idempotency_key: idempotency_key
+    )
 
-      # Process new payment
-      payment = @gateway.charge(amount: amount)
+    return payment_response(existing_payment) if existing_payment
 
-      # Store result for future duplicate requests
-      @payments[idempotency_key] = payment
+    payment = Payment.create!(
+      order_id: order_id,
+      amount: amount,
+      idempotency_key: idempotency_key,
+      status: "pending"
+    )
 
-      puts "Payment created: #{idempotency_key}"
+    result = @gateway.charge(amount: amount)
 
-      payment
+    unless result[:success]
+      payment.update!(status: "failed")
+      return payment_response(payment)
     end
+
+    payment.update!(
+      external_id: result[:external_id]
+    )
+
+    @provider.charge(
+      external_id: payment.external_id,
+      order_id: payment.order_id,
+      amount: payment.amount
+    )
+
+    payment_response(payment)
+
+  rescue ActiveRecord::RecordNotUnique
+    payment = Payment.find_by!(
+      idempotency_key: idempotency_key
+    )
+
+    payment_response(payment)
   end
 
   private
 
-  def validate!(amount, idempotency_key)
-    unless valid_amount?(amount)
-      raise ArgumentError, "invalid_amount"
-    end
+  def validate!(order_id, amount, idempotency_key)
+    raise ArgumentError, "missing_order_id" if order_id.nil?
 
     if idempotency_key.nil? || idempotency_key.empty?
       raise ArgumentError, "missing_idempotency_key"
     end
+
+    valid_amount = begin
+      Float(amount).positive?
+    rescue ArgumentError, TypeError
+      false
+    end
+
+    raise ArgumentError, "invalid_amount" unless valid_amount
   end
 
-  def valid_amount?(amount)
-    Float(amount).positive?
-  rescue ArgumentError, TypeError
-    false
+  def payment_response(payment)
+    {
+      success: payment.status == "paid",
+      external_id: payment.external_id,
+      amount: payment.amount,
+      status: payment.status
+    }
   end
 end

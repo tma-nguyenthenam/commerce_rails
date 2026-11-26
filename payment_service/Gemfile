@@ -2,3 +2,9 @@ source "https://rubygems.org"
 
 gem "sinatra"
 gem "puma"
+
+# Database
+gem "activerecord"
+gem "pg"
+
+gem "json_schemer"
