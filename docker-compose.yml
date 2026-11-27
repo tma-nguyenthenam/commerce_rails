@@ -64,6 +64,9 @@ services:
       - ruby
       - -e
       - |
+        $$stdout.sync = true
+        $$stderr.sync = true
+
         require_relative "./config/database"
         require_relative "./workers/webhook_worker_runner"
 

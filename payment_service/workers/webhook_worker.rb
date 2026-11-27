@@ -19,33 +19,37 @@ module Webhooks
         @notifier = notifier
     end
 
+    
     def perform_once
-      event = claim_event
-      return false unless event
+        event = claim_event
+        return false unless event
 
-      process(event)
-      true
-    end
+        puts "[WebhookWorker] Processing event: #{event.event_id}"
+        puts "[WebhookWorker] Event type: #{event.event_type}"
+
+        process(event)
+        true
+        end
 
     private
 
     def claim_event
-      WebhookEvent.transaction do
-        event = WebhookEvent
-          .where(status: "pending")
-          .order(:id)
-          .lock("FOR UPDATE SKIP LOCKED")
-          .first
+        WebhookEvent.transaction do
+            event = WebhookEvent
+            .where(status: "pending")
+            .order(:id)
+            .lock("FOR UPDATE SKIP LOCKED")
+            .first
 
-        if event
-          event.update!(
-            status: "processing",
-            attempts: event.attempts + 1
-          )
+            if event
+            event.update!(
+                status: "processing",
+                attempts: event.attempts + 1
+            )
+            end
+
+            event
         end
-
-        event
-      end
     end
 
     def process(event)
@@ -73,6 +77,7 @@ module Webhooks
         )
 
         warn "[WebhookWorker] Event #{event.event_id} failed: #{e.class} - #{e.message}"
+        end
+
     end
-  end
 end
