@@ -51,7 +51,7 @@ group :development, :test do
   gem "factory_bot_rails"
 end
 gem "propshaft"
-gem "json", "~> 2.15" # json 3.x không tương thích ActiveSupport 8.0 (lỗi quirks_mode khi ghi cookie)
+gem "json", "~> 3.2" # json 3.x không tương thích ActiveSupport 8.0 (lỗi quirks_mode khi ghi cookie)
 
 # Local gem for order_pricing
 gem "order_pricing", path: "./vendor/gems/order_pricing"
